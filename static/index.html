@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>数据分析Agent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .upload-section {
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .error {
+            color: red;
+        }
+
+        img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📊 数据文件分析</h1>
+
+    <div class="upload-section">
+        <h3>1. 选择文件（.csv / .xlsx）</h3>
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" />
+        <button id="uploadBtn">上传并分析</button>
+        <span id="uploadStatus"></span>
+    </div>
+
+    <div class="result-section" id="resultSection">
+        <h3>2. 分析结果</h3>
+        <p>状态：<span id="taskStatus">等待中...</span></p>
+        <div id="analysisSummary"></div>
+        <div id="chartSection" style="display:none;">
+            <h4>生成图表</h4>
+            <img id="chartImage" src="" alt="图表" />
+        </div>
+    </div>
+
+    <script>
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const resultSection = document.getElementById('resultSection');
+        const taskStatus = document.getElementById('taskStatus');
+        const analysisSummary = document.getElementById('analysisSummary');
+        const chartSection = document.getElementById('chartSection');
+        const chartImage = document.getElementById('chartImage');
+
+        uploadBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                uploadStatus.textContent = '请先选择文件';
+                return;
+            }
+
+            // 1. 上传文件
+            uploadStatus.textContent = '文件已上传，正在分析...';
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const uploadRes = await fetch('/analysis/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const uploadData = await uploadRes.json();
+            const taskId = uploadData.task_id;
+            uploadStatus.textContent = '已提交，任务ID: ' + taskId;
+
+            // 2. 显示结果区域，开始轮询
+            resultSection.style.display = 'block';
+            taskStatus.textContent = '分析中...';
+            analysisSummary.textContent = '';
+
+            const pollInterval = setInterval(async () => {
+                const statusRes = await fetch('/analysis/' + taskId);
+                const statusData = await statusRes.json();
+
+                taskStatus.textContent = statusData.status === 'running' ? '分析中...' : statusData.status;
+
+                if (statusData.status === 'completed') {
+                    clearInterval(pollInterval);
+                    taskStatus.textContent = '完成';
+                    analysisSummary.innerHTML = '<pre>' + statusData.summary + '</pre>';
+
+                    if (statusData.chart_available) {
+                        chartSection.style.display = 'block';
+                        chartImage.src = '/analysis/' + taskId + '/chart';
+                    }
+                } else if (statusData.status === 'failed') {
+                    clearInterval(pollInterval);
+                    taskStatus.textContent = '失败';
+                    analysisSummary.innerHTML = '<span class="error">错误：' + statusData.error + '</span>';
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+
+</html>

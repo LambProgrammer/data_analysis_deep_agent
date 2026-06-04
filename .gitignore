@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[oc]
+*.pyo
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment variables
+.env
+
+# Data artifacts (keep directory structure with .gitkeep)
+data/uploads/*
+data/*.png
+data/*.txt
+data/*.csv
+data/*.xlsx
+
+# Modal
+.modal.toml
+
+# IDE / OS
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+
+# Cache
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Database
+*.db-wal
+*.db-shm

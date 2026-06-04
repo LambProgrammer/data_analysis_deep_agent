@@ -1,0 +1,22 @@
+[project]
+name = "data-analysis-deep-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "deepagents>=0.5.4",
+    "fastapi[standard]>=0.136.1",
+    "langchain-community>=0.4.1",
+    "langchain-deepseek>=1.0.1",
+    "langchain-modal>=0.0.3",
+    "langchain-openai>=1.2.1",
+    "langsmith>=0.7.38",
+    "matplotlib>=3.10.9",
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "procrastinate>=3.8.1",
+    "psycopg2-binary>=2.9.12",
+    "python-multipart>=0.0.27",
+]

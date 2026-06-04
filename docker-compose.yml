@@ -1,0 +1,58 @@
+# ==========================================
+# 一键启动 PostgreSQL + FastAPI Web + Procrastinate Worker
+# 使用方式：首次docker compose up -d，以后可直接在Docker Desktop中启动容器
+# ==========================================
+
+services:
+  postgres:
+    image: postgres:15.6
+    container_name: analysis-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: analysis
+    ports:
+      - "5432:5432"          # 宿主机可访问（用于 DBeaver 等工具）
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: analysis-web
+    restart: unless-stopped
+    command: python start_server.py
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env                # 注入所有环境变量（包括 API Key）
+    environment:
+      - ENVIRONMENT=container   # 通知 config.py 使用容器内数据库地址
+    volumes:
+      - ./data:/app/data        # 挂载整个 data 目录，包含图表和上传文件
+
+  worker:
+    build: .
+    container_name: analysis-worker
+    restart: unless-stopped
+    command: python run_worker.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - ENVIRONMENT=container
+    volumes:
+      - ./data:/app/data        # 同样挂载，保证 worker 写入的图表 web 能读到
+
+volumes:
+  pgdata:
