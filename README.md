@@ -140,7 +140,7 @@ python test_agent_sandbox.py       # 测试 Agent 完整分析流程
 python evaluation/eval_efficiency.py  # 运行效率评估
 ```
 
-也可以在 GitHub Actions 的 “Actions” 页面通过 `workflow_dispatch` 手动触发完整的集成与评估流水线。
+
 
 ---
 
