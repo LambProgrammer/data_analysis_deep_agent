@@ -3,15 +3,15 @@
 # ==========================================
 
 
-import sys
 import asyncio
+import sys
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from app.core.queue import app as procrastinate_app
-from app.utils.db import init_db, close_db
-import app.services.analysis_service  # ← 关键：导入任务模块，触发注册
+from app.utils.db import close_db, init_db
+
 
 async def main():
     print("正在打开数据库连接...")

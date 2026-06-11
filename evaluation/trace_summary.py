@@ -4,8 +4,9 @@ LangSmith仪表盘Trace内容提取
 """
 
 
-from langsmith import Client
 from dotenv import load_dotenv
+from langsmith import Client
+
 load_dotenv()
 
 client = Client()
@@ -58,6 +59,7 @@ for i, run in enumerate(all_runs):
     prompt_tokens = run.prompt_tokens or 0
     completion_tokens = run.completion_tokens or 0
     print(f"{i+1}. [{run_type}] {name}")
-    print(f"   耗时: {latency}, Token: {tokens} (prompt: {prompt_tokens}, completion: {completion_tokens})")
+    print(f"   耗时: {latency}, Token: {tokens} "
+          f"(prompt: {prompt_tokens}, completion: {completion_tokens})")
 
 print("=" * 80)

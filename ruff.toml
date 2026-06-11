@@ -8,3 +8,8 @@ ignore = []
 [format]
 quote-style = "double"
 indent-style = "space"
+
+[lint.per-file-ignores]
+"evaluation/eval_efficiency.py" = ["E402", "E501"]
+"app/services/analysis_service.py" = ["E501"]
+"test_modal_sandbox.py" = ["E501"]

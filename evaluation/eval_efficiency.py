@@ -10,14 +10,19 @@
 # 1. 环境与依赖
 # ==============================
 from dotenv import load_dotenv
+
 load_dotenv()
 
-import sys, os, asyncio, uuid
+import asyncio
+import os
+import sys
+import uuid
 from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from langsmith import Client, evaluate, traceable
+
 from app.core.dependencies import task_sandbox_agent
 
 # ==============================
@@ -31,7 +36,6 @@ MAX_TOTAL_TOKENS = 120_000
 # ==============================
 @traceable
 async def run_agent_async(inputs: dict) -> dict:
-    instruction = inputs["instruction"]
     file_path = inputs["file_path"]
     task_id = f"eval_{Path(file_path).stem}"
 

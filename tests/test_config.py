@@ -2,8 +2,6 @@
 # 单元测试：config.py
 # ==========================================
 
-import os
-from unittest.mock import patch
 from config import Config
 
 

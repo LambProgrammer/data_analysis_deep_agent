@@ -1,35 +1,36 @@
 from pathlib import Path
+
+import dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
-import os, dotenv
 
 
 class Config(BaseSettings):
-    
+
     # DeepSeek
     DEEPSEEK_CHAT: str = "deepseek-chat"
-    DEEPSEEK_API_KEY:Optional[str]=None
-    
+    DEEPSEEK_API_KEY:str | None=None
+
     # LangSmith
-    LANGCHAIN_TRACING_V2:Optional[bool]=True               # 支持环境变量 LANGSMITH_TRACING=true/false
-    LANGSMITH_ENDPOINT:Optional[str]=None
-    LANGSMITH_API_KEY:Optional[str]=None
-    LANGSMITH_PROJECT:Optional[str]=None
-    
+    LANGCHAIN_TRACING_V2:bool | None=True               # 支持环境变量 LANGSMITH_TRACING=true/false
+    LANGSMITH_ENDPOINT:str | None=None
+    LANGSMITH_API_KEY:str | None=None
+    LANGSMITH_PROJECT:str | None=None
+
     # 数据库
-    DATABASE_URL:Optional[str]=None
-    
-    # 多环境标识（容器内运行时，docker-compose.yml已经为web和worker服务显式设置了环境变量为container）
+    DATABASE_URL:str | None=None
+
+    # 多环境标识
+    # 容器内运行时，docker-compose.yml已经为web和worker服务显式设置了环境变量为container
     ENVIRONMENT: str = "development"   # development 或 container
-    
-    
+
+
     model_config=SettingsConfigDict(
         case_sensitive=False,
         env_file_encoding="utf-8",
         env_file=Path(__file__).resolve().parent.joinpath(".env"),
         extra="ignore"
     )
-    
+
     def get_database_url(self) -> str:
         """根据环境返回正确的数据库连接字符串"""
         if self.ENVIRONMENT == "container":
@@ -38,8 +39,8 @@ class Config(BaseSettings):
         else:
             # 开发环境使用 .env 中配置的地址（通常是 localhost）
             return self.DATABASE_URL or "postgresql://postgres:postgres@localhost:5432/analysis"
-    
-    
+
+
 config = Config()
 
 # 手动加载 .env 中的 LangSmith 变量

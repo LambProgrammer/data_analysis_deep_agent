@@ -4,17 +4,18 @@ FastAPI 应用入口模块。app/main.py
 - 管理应用生命周期（启动 / 关闭）
 - 注册各个业务路由
 - 提供根路径健康检查
-""" 
+"""
 
-from contextlib import asynccontextmanager          # 用于将异步生成器包装为上下文管理器
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager  # 用于将异步生成器包装为上下文管理器
+
 from fastapi import FastAPI
-from app.routes.analysis import router as analysis_router  # 导入分析模块的路由
-from app.core.queue import app as procrastinate_app
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from typing import AsyncGenerator
-from app.utils.db import init_db, close_db
 
+from app.core.queue import app as procrastinate_app
+from app.routes.analysis import router as analysis_router  # 导入分析模块的路由
+from app.utils.db import close_db, init_db
 
 # ===========================
 # 应用生命周期管理
@@ -33,7 +34,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     1. 关闭 Procrastinate 连接池，释放数据库连接资源。
     2. 其他清理操作可在此添加。
     """
-    
+
     # ========== 启动阶段 ==========
     # 设置启动完成标志（可根据需要保留）
     print("🚀 Lifespan 启动，正在打开 Procrastinate 连接...")
@@ -50,10 +51,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception as e:
         print(f"❌ 打开连接失败: {e}")
         raise
-      
+
     # yield 交出控制权，FastAPI 开始接收请求
     yield
-    
+
     # ========== 关闭阶段 ==========
     await close_db()
     print("✅ 数据库业务连接池已关闭")

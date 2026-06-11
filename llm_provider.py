@@ -1,5 +1,6 @@
-from pydantic import SecretStr
 from langchain_deepseek import ChatDeepSeek
+from pydantic import SecretStr
+
 from config import config
 
 _llm_deepseek = None

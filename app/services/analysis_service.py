@@ -1,8 +1,9 @@
 import uuid
 from pathlib import Path
+
+from app.core.dependencies import task_sandbox_agent
 from app.core.queue import app as procrastinate_app
 from app.utils.db import update_task_db
-from app.core.dependencies import task_sandbox_agent
 
 # 图表保存的固定位置（必须在 ./data/ 下）
 DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
@@ -63,8 +64,6 @@ async def run_analysis_task(file_path: str, task_id: str):
             # ========== 带有步数限制和兜底总结的 Agent 执行 ==========
             messages = [input_message]
             thread_id = str(uuid.uuid4())
-            MAX_EXECUTIONS = 2
-            execution_count = 0
 
             config = {
                 "configurable": {"thread_id": thread_id},

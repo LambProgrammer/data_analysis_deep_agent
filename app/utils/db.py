@@ -20,8 +20,8 @@
 
 
 import asyncpg
-from config import config
 
+from config import config
 
 # 全局连接池对象，None 表示未初始化
 # 使用模块级单例，整个应用共享一个连接池
@@ -57,7 +57,14 @@ async def close_db():
         _pool = None
 
 
-async def update_task_db(task_id: str, status: str, summary=None, chart_path=None, chart_available=False, error=None):
+async def update_task_db(
+    task_id: str,
+    status: str,
+    summary=None,
+    chart_path=None,
+    chart_available=False,
+    error=None
+    ):
     """
     插入或更新 tasks 表中的任务记录（异步）。
 
@@ -75,8 +82,8 @@ async def update_task_db(task_id: str, status: str, summary=None, chart_path=Non
     """
     if _pool is None:
         raise RuntimeError("数据库连接池未初始化，请先调用 init_db()")
-    
-    
+
+
     # 从连接池获取一个连接，async with 块结束后自动归还
     async with _pool.acquire() as conn:
         await conn.execute(
@@ -105,7 +112,7 @@ async def get_task_from_db(task_id: str) -> dict | None:
     """
     if _pool is None:
         raise RuntimeError("数据库连接池未初始化，请先调用 init_db()")
-    
+
     async with _pool.acquire() as conn:
         # fetchrow 返回单行，无结果时返回 None
         row = await conn.fetchrow(
@@ -118,7 +125,7 @@ async def get_task_from_db(task_id: str) -> dict | None:
         )
         if row is None:
             return None
-        
+
         # 将 asyncpg.Record 转换为普通字典，方便调用方使用 .get() 等方法
         return {
             "status": row["status"],

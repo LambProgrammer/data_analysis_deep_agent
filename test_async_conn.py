@@ -8,7 +8,9 @@ import asyncio
 import selectors  # 新增
 
 from procrastinate import App, PsycopgConnector
+
 from config import config
+
 
 async def main():
     app = App(connector=PsycopgConnector(conninfo=config.DATABASE_URL))

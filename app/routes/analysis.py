@@ -6,22 +6,24 @@
 - GET /{task_id} : 查询任务状态或获取分析结果。
 - GET /{task_id}/chart : 下载分析生成的图表图片。
 
-上传接口：保存文件 → 调用 procrastinate_app.defer(run_analysis_task, file_path=...) 获取 job_id → 返回给前端
+上传接口：保存文件 → 调用 procrastinate_app.defer(run_analysis_task, file_path=...)，
+获取 job_id → 返回给前端
 
 状态查询接口：使用 Procrastinate 的 JobManager 查询 job 状态，映射字段
 
 图表接口：同样从 job result 获取 chart_path
 """
 
-import uuid
 import shutil
+import uuid
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse
-from app.schemas.analysis import AnalysisResponse, AnalysisResult
-from app.utils.db import update_task_db, get_task_from_db
-from app.services.analysis_service import run_analysis_task         # 导入只是为了类型，实际由 defer 调用
 
+from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+
+from app.schemas.analysis import AnalysisResponse, AnalysisResult
+from app.services.analysis_service import run_analysis_task  # 导入只是为了类型，实际由 defer 调用
+from app.utils.db import get_task_from_db, update_task_db
 
 # 创建 APIRouter 实例，后续所有分析相关的端点都注册在这个 router 上
 # main.py 通过 app.include_router(router, prefix="/analysis") 挂载整个子路由
@@ -52,7 +54,8 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 # 端点 1：上传文件并触发分析
 # ===========================
 @router.post("/upload", response_model=AnalysisResponse)
-async def upload_and_analyze(file: UploadFile = File(...)):             # File(...) 表示该参数是必填的文件上传字段
+async def upload_and_analyze(file: UploadFile = File(...)):
+    # File(...) 表示该参数是必填的文件上传字段
     """
     上传 CSV 或 Excel 文件，启动后台分析任务。
 
@@ -62,7 +65,7 @@ async def upload_and_analyze(file: UploadFile = File(...)):             # File(.
     3. 通过Procrastinate实例的装饰器注册而成的agent函数，提交任务到Postgres队列
     4. 立即返回包含 task_id 的响应，客户端可用此 ID 轮询结果
     """
-    
+
     # --- 1. 校验文件扩展名 ---
     filename = file.filename
     if not filename:
@@ -119,11 +122,11 @@ async def get_analysis_status(task_id: str):
     - error: 当任务失败时，返回错误描述
     - result_files: 生成的结果文件列表（本例中可能包含图表文件名）
     """
-    
+
     task = await get_task_from_db(task_id=task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="任务不存在")
-    
+
     # 构造响应模型，Pydantic 会自动过滤掉多余字段
     return AnalysisResult(
         task_id=task_id,
@@ -152,9 +155,9 @@ async def get_chart(task_id: str):
     task = await get_task_from_db(task_id=task_id)
     if task is None or task['status'] != "completed" or not task.get("chart_available"):
         raise HTTPException(status_code=404, detail="图表未生成或任务未完成")
-    
+
     chart_path = task.get("chart_path")
     if not chart_path or not Path(chart_path).exists():
         raise HTTPException(status_code=404, detail="图表文件丢失")
-    
+
     return FileResponse(path=chart_path, media_type="image/png", filename=f"{task_id}_chart.png")

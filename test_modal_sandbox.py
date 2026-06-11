@@ -6,7 +6,7 @@
 
 # test_modal_sandbox.py
 import modal
-from langchain_modal import ModalSandbox
+
 
 def main():
     # 1. 创建一个预装好依赖的镜像
@@ -27,10 +27,7 @@ def main():
     )
     print("Sandbox created:", sandbox)
 
-    # 4. 用 ModalSandbox 适配器包装 (后续给 Agent 使用)
-    backend = ModalSandbox(sandbox=sandbox)
-
-    # 5. 测试执行命令
+    # 4. 测试执行命令
     # 使用 sandbox.exec() 来在沙箱中运行命令
     process = sandbox.exec("python", "-c", "import pandas; print('pandas version:', pandas.__version__)")
     print(process.stdout.read())
@@ -41,7 +38,7 @@ def main():
 
     print("\nAll dependencies verified!")
 
-    # 6. (重要!) 测试完成后，务必终止沙箱以释放资源
+    # 5. (重要!) 测试完成后，务必终止沙箱以释放资源
     sandbox.terminate()
     print("Sandbox terminated.")
 
